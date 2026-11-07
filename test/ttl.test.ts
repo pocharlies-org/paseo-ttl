@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { fmtTtl, ttlLabel, ttlLineas, ttlVivo, type Routing } from "../shared/ttl.ts";
+import { fmtTtl, ttlLabel, ttlLineas, ttlTono, ttlVivo, type Routing } from "../shared/ttl.ts";
 
 const r = (over: Partial<Routing> = {}): Routing => ({
   plan: null,
@@ -17,22 +17,26 @@ test("fmtTtl", () => {
   assert.equal(fmtTtl(0), "0m");
 });
 
-test("claude: cuenta y lo que queda, descontado desde la lectura", () => {
+test("claude: número a secas y tono por lo que queda", () => {
   const routing = r({ cuenta: "max", cuentaTtl: 2148, readAtMs: 1000 });
-  assert.equal(ttlLabel(routing, 1000), "max · 36m");
+  assert.equal(ttlLabel(routing, 1000), "36m");
+  assert.equal(ttlTono(routing, 1000), "success");
+  assert.equal(ttlTono(routing, 1000 + 2100_000), "warning"); // quedan ~4 min
   assert.equal(ttlVivo(routing, 1000 + 60_000), 2088);
   assert.deepEqual(ttlLineas(routing, 1000), ["Cuenta Claude: max", "Cache de la ruta: quedan 36m"]);
 });
 
-test("alibaba: plan y plan_ttl", () => {
-  const routing = r({ plan: "alibaba", planTtl: 1051, readAtMs: 0 });
-  assert.equal(ttlLabel(routing, 0), "alibaba · 18m");
+test("alibaba: número y verde; local: lila", () => {
+  assert.equal(ttlLabel(r({ plan: "alibaba", planTtl: 1051, readAtMs: 0 }), 0), "18m");
+  assert.equal(ttlTono(r({ plan: "alibaba", planTtl: 1051, readAtMs: 0 }), 0), "success");
+  assert.equal(ttlTono(r({ plan: "local", planTtl: 1616, readAtMs: 0 }), 0), "local");
 });
 
-test("sin datos", () => {
-  assert.equal(ttlLabel(null, 0), "ttl: sin ruta");
-  assert.equal(ttlLabel(r(), 0), "ttl: sin ruta");
-  assert.equal(ttlLabel(r({ plan: "local", readAtMs: 0 }), 0), "local · —");
+test("sin caché: rojo y guion", () => {
+  assert.equal(ttlLabel(null, 0), "—");
+  assert.equal(ttlTono(null, 0), "danger");
+  assert.equal(ttlTono(r(), 0), "danger");
+  assert.equal(ttlLabel(r({ plan: "local", readAtMs: 0 }), 0), "—");
 });
 
 test("el ttl no baja de cero", () => {
