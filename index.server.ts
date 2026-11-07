@@ -40,4 +40,7 @@ export default function contribute(server: PluginServerContext) {
   server.handle(ttlGet, async ({ sessionIds }) => ({
     routing: Object.fromEntries(await Promise.all(sessionIds.map(async (id) => [id, await fetchRouting(id)] as const))),
   }));
+  return () => {
+    cache.clear();
+  };
 }
