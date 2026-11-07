@@ -1,0 +1,6 @@
+{
+  "id": "paseo-ttl",
+  "name": "TTL de LiteLLM",
+  "description": "Píldora en el composer: siempre visible, la cuenta de Claude que sirve la sesión y lo que queda de su caché; con Alibaba o residente, el plan y su TTL.",
+  "requirements": { "paseo": ">=0.11.2" }
+}
