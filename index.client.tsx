@@ -1,7 +1,12 @@
-import type { PluginButtonContentProps, PluginClientContext } from "@getpaseo/plugin/client";
+import type {
+  PluginButtonContentProps,
+  PluginButtonIconProps,
+  PluginClientContext,
+} from "@getpaseo/plugin/client";
 import { useEffect, useState } from "react";
+import { Icon } from "@getpaseo/plugin/client/react-native";
 import { Text, View } from "react-native";
-import { ttlGet, ttlLabel, ttlLineas, type Routing } from "./shared/ttl.ts";
+import { ttlGet, ttlLabel, ttlLineas, ttlTono, type Routing, type Tono } from "./shared/ttl.ts";
 
 // Una píldora por agente Claude: el TTL de su ruta por LiteLLM, siempre visible — con Claude la cuenta que lo sirve y
 // lo que queda de caché («max · 36m»), con Alibaba/residente el plan y el suyo («alibaba · 17m»). El dato lo lee el
@@ -24,6 +29,18 @@ export default function contribute(client: PluginClientContext) {
   const lifetime = new AbortController();
   let stopped = false;
   let stopAgents: (() => void) | undefined;
+
+  // El color del icono dice el estado de la caché (verde/amarillo/rojo/lila); la etiqueta es el número.
+  function TtlIcon(props: PluginButtonIconProps) {
+    const agentId = props.context === "agent" ? props.agentId : "";
+    const tono: Tono = ttlTono(live.get(agentId)?.routing ?? null, Date.now());
+    const colors = props.theme.colors as Record<string, string | undefined>;
+    const color =
+      tono === "success" ? colors.statusSuccess :
+      tono === "warning" ? (colors.statusWarning ?? "#eab308") :
+      tono === "local" ? "#a78bfa" : colors.statusDanger;
+    return <Icon name="Timer" size={props.size} color={color ?? props.theme.colors.foreground} />;
+  }
 
   function TtlPopover(props: PluginButtonContentProps) {
     const [, tick] = useState(0); // la cuenta atrás sigue moviéndose con el popover abierto
@@ -59,12 +76,12 @@ export default function contribute(client: PluginClientContext) {
       workspaceId: agent.workspaceId,
       sessionId,
       routing: null,
-      label: "ttl: …",
+      label: "…",
       reg: client.addComposerPill({
         id: "ttl",
         workspaceId: agent.workspaceId,
         agentId: agent.id,
-        button: { title: "Caché de LiteLLM (cuenta y tiempo restante)", icon: "Timer", label: "ttl: …", behavior: { kind: "popover", Content: TtlPopover } },
+        button: { title: "Caché de LiteLLM (cuenta y tiempo restante)", icon: TtlIcon, label: "…", behavior: { kind: "popover", Content: TtlPopover } },
       }),
     };
     live.set(agent.id, entry);

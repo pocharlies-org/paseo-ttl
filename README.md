@@ -2,9 +2,8 @@
 
 Píldora en el composer de Paseo, siempre visible en agentes Claude: el TTL de la ruta por LiteLLM.
 
-- Con un modelo Claude: la cuenta que sirve la sesión y lo que queda de su caché (`max · 36m`).
-- Con Alibaba o el residente: el plan y su TTL (`alibaba · 17m`).
-- Sin datos del panel: `ttl: sin ruta`.
+- La etiqueta es el número a secas (`36m`); cuenta y plan van en el popover.
+- El color del icono dice el estado: verde hay caché, amarillo quedan ≤5 min, rojo no hay caché, lila es local.
 
 El dato lo da el panel de control-nexus (`GET /api/session-routing/session/{sid}`, LAN/tailnet sin SSO); lo lee la mitad
 de servidor del plugin (cache 15 s por sesión) y lo sirve al cliente por RPC, igual que paseo-plan con las tareas. El

@@ -34,14 +34,22 @@ export function ttlVivo(r: Routing, nowMs: number): number | null {
   return Math.max(0, base - (nowMs - r.readAtMs) / 1000);
 }
 
-// «max · 36m» con Claude (cuenta + lo que queda de su caché), «alibaba · 17m» con plan; sin ruta, lo dice.
+// El número a secas («36m»), sin prefijo: se lee de un vistazo (Dani 07-11); cuenta y plan van en el popover.
 export function ttlLabel(r: Routing | null, nowMs: number): string {
-  if (!r) return "ttl: sin ruta";
+  const left = r ? ttlVivo(r, nowMs) : null;
+  return left == null ? "—" : fmtTtl(left);
+}
+
+export type Tono = "success" | "warning" | "danger" | "local";
+
+// Verde hay caché, amarillo queda ≤5 min, rojo no hay caché, lila es local (los colores del viejo servicio de
+// cuentas de x86; el icono es el único gancho de color de la píldora, como en paseo-descuento).
+export function ttlTono(r: Routing | null, nowMs: number): Tono {
+  if (!r) return "danger";
+  if (r.plan === "local") return "local";
   const left = ttlVivo(r, nowMs);
-  const tail = left == null ? "" : ` · ${fmtTtl(left)}`;
-  if (r.cuenta) return `${r.cuenta}${tail}`;
-  if (r.plan) return `${r.plan}${tail || " · —"}`;
-  return "ttl: sin ruta";
+  if (left == null) return "danger";
+  return left <= 300 ? "warning" : "success";
 }
 
 export function ttlLineas(r: Routing | null, nowMs: number): string[] {

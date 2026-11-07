@@ -1,6 +1,6 @@
 {
   "id": "paseo-ttl",
   "name": "TTL de LiteLLM",
-  "description": "Píldora en el composer: siempre visible, la cuenta de Claude que sirve la sesión y lo que queda de su caché; con Alibaba o residente, el plan y su TTL.",
+  "description": "Píldora en el composer: siempre visible, el tiempo que queda de caché de la ruta LiteLLM como número; verde hay caché, amarillo ≤5 min, rojo sin caché, lila local.",
   "requirements": { "paseo": ">=0.11.2" }
 }
