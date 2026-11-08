@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { fmtTtl, ttlLabel, ttlLineas, ttlTono, ttlVivo, type Routing } from "../shared/ttl.ts";
+import { fmtTtl, ttlLabel, ttlLineas, ttlTono, ttlVisible, ttlVivo, type Routing } from "../shared/ttl.ts";
 
 const r = (over: Partial<Routing> = {}): Routing => ({
   plan: null,
@@ -41,4 +41,10 @@ test("sin caché: rojo y guion", () => {
 
 test("el ttl no baja de cero", () => {
   assert.equal(ttlVivo(r({ cuenta: "max", cuentaTtl: 10, readAtMs: 0 }), 10 * 60_000), 0);
+});
+
+test("en el móvil la píldora solo sale cuando la caché está a punto de caducar", () => {
+  for (const tono of ["success", "warning", "danger", "local"] as const) assert.equal(ttlVisible(false, tono), true);
+  assert.equal(ttlVisible(true, "warning"), true);
+  for (const tono of ["success", "danger", "local"] as const) assert.equal(ttlVisible(true, tono), false);
 });

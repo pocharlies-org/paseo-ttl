@@ -6,9 +6,9 @@ import type {
 import { useEffect, useState } from "react";
 import { Icon } from "@getpaseo/plugin/client/react-native";
 import { Text, View } from "react-native";
-import { ttlGet, ttlLabel, ttlLineas, ttlTono, type Routing, type Tono } from "./shared/ttl.ts";
+import { ttlGet, ttlLabel, ttlLineas, ttlTono, ttlVisible, type Routing, type Tono } from "./shared/ttl.ts";
 
-// Una píldora por agente Claude: el TTL de su ruta por LiteLLM, siempre visible — con Claude la cuenta que lo sirve y
+// Una píldora por agente Claude: el TTL de su ruta por LiteLLM, siempre visible en escritorio (en el móvil, solo con la caché a punto de caducar) — con Claude la cuenta que lo sirve y
 // lo que queda de caché («max · 36m»), con Alibaba/residente el plan y el suyo («alibaba · 17m»). El dato lo lee el
 // servidor del plugin del panel de control-nexus (ttl.get); el tick de 30 s repinta la cuenta atrás descontando reloj.
 
@@ -19,6 +19,7 @@ interface Live {
   sessionId?: string;
   routing: Routing | null;
   label: string;
+  visible: boolean;
   reg: ReturnType<PluginClientContext["addComposerPill"]>;
 }
 
@@ -29,11 +30,19 @@ export default function contribute(client: PluginClientContext) {
   const lifetime = new AbortController();
   let stopped = false;
   let stopAgents: (() => void) | undefined;
+  // The host hands `layout.compact` to components only: the icon reports it.
+  // shortcut: a pill hidden on a compact layout learns of a wider one only when it shows again (the next cache warning).
+  let compact = false;
 
   // El color del icono dice el estado de la caché (verde/amarillo/rojo/lila); la etiqueta es el número.
   function TtlIcon(props: PluginButtonIconProps) {
     const agentId = props.context === "agent" ? props.agentId : "";
     const tono: Tono = ttlTono(live.get(agentId)?.routing ?? null, Date.now());
+    useEffect(() => {
+      if (compact === props.layout.compact) return;
+      compact = props.layout.compact;
+      repaint();
+    }, [props.layout.compact]);
     const colors = props.theme.colors as Record<string, string | undefined>;
     const color =
       tono === "success" ? colors.statusSuccess :
@@ -77,6 +86,7 @@ export default function contribute(client: PluginClientContext) {
       sessionId,
       routing: null,
       label: "…",
+      visible: true,
       reg: client.addComposerPill({
         id: "ttl",
         workspaceId: agent.workspaceId,
@@ -98,9 +108,11 @@ export default function contribute(client: PluginClientContext) {
     const now = Date.now();
     for (const l of live.values()) {
       const text = ttlLabel(l.routing, now);
-      if (text !== l.label) {
+      const visible = ttlVisible(compact, ttlTono(l.routing, now));
+      if (text !== l.label || visible !== l.visible) {
         l.label = text;
-        l.reg.update({ label: text });
+        l.visible = visible;
+        l.reg.update({ label: text, visible });
       }
     }
   };

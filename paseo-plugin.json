@@ -1,6 +1,6 @@
 {
   "id": "paseo-ttl",
   "name": "TTL de LiteLLM",
-  "description": "Píldora en el composer: siempre visible, el tiempo que queda de caché de la ruta LiteLLM como número; verde hay caché, amarillo ≤5 min, rojo sin caché, lila local.",
+  "description": "Píldora en el composer: visible en escritorio (en el móvil, solo con la caché a punto de caducar), el tiempo que queda de caché de la ruta LiteLLM como número; verde hay caché, amarillo ≤5 min, rojo sin caché, lila local.",
   "requirements": { "paseo": ">=0.11.2" }
 }
