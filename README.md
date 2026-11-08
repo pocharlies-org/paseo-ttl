@@ -1,6 +1,6 @@
 # paseo-ttl
 
-Píldora en el composer de Paseo, siempre visible en agentes Claude: el TTL de la ruta por LiteLLM.
+Píldora en el composer de Paseo, en agentes Claude: el TTL de la ruta por LiteLLM. Siempre visible en escritorio; en el móvil, donde la fila de píldoras no cabe, solo sale con la caché a punto de caducar (≤ 5 min).
 
 - La etiqueta es el número a secas (`36m`); cuenta y plan van en el popover.
 - El color del icono dice el estado: verde hay caché, amarillo quedan ≤5 min, rojo no hay caché, lila es local.

@@ -52,6 +52,10 @@ export function ttlTono(r: Routing | null, nowMs: number): Tono {
   return left <= 300 ? "warning" : "success";
 }
 
+// On the phone the row of composer pills does not fit and the host squeezes plugin pills below their icon (Dani 08-11: «se
+// ve cortado»): there the cache pill only shows when it has something to warn about — the cache about to expire.
+export const ttlVisible = (compact: boolean, tono: Tono): boolean => !compact || tono === "warning";
+
 export function ttlLineas(r: Routing | null, nowMs: number): string[] {
   if (!r) return ["Sin datos del panel (control-nexus)"];
   const left = ttlVivo(r, nowMs);
