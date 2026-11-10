@@ -7,4 +7,4 @@ Píldora en el composer de Paseo, en agentes Claude: el TTL de la ruta por LiteL
 
 El dato lo da el panel de control-nexus (`GET /api/session-routing/session/{sid}`, LAN/tailnet sin SSO); lo lee la mitad
 de servidor del plugin (cache 15 s por sesión) y lo sirve al cliente por RPC, igual que paseo-plan con las tareas. El
-tick de 30 s repinta la cuenta atrás descontando reloj desde la lectura. Panel alternativo: `PASEO_TTL_PANEL`.
+tick de 30 s repinta la cuenta atrás descontando reloj desde la lectura. El panel se fija con `PASEO_TTL_PANEL` o la primera línea de `~/.config/paseo-ttl/panel`; sin él la píldora dice «sin ruta».

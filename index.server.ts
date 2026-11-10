@@ -1,8 +1,19 @@
 import type { PluginServerContext } from "@getpaseo/plugin/server";
+import { readFileSync } from "node:fs";
+import { homedir } from "node:os";
 import { ttlGet, type Routing } from "./shared/ttl.ts";
 
-// El panel de control-nexus (LAN/tailnet, sin SSO), como el default de litellm-band.
-const PANEL = (process.env.PASEO_TTL_PANEL ?? "https://dgx.lan.e-dani.com").replace(/\/+$/, "");
+// El panel de control-nexus (LAN/tailnet, sin SSO): PASEO_TTL_PANEL, o la primera línea de ~/.config/paseo-ttl/panel; vacío = sin ruta.
+const PANEL = (
+  process.env.PASEO_TTL_PANEL ??
+  (() => {
+    try {
+      return readFileSync(`${homedir()}/.config/paseo-ttl/panel`, "utf8").trim();
+    } catch {
+      return "";
+    }
+  })()
+).replace(/\/+$/, "");
 const CACHE_MS = 15_000;
 
 const cache = new Map<string, { at: number; value: Routing | null }>();
